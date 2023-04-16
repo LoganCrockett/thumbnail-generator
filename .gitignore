@@ -7,6 +7,9 @@
 .metadata
 .settings
 
+# Resources / Test Data
+resources/images/output
+
 # Log file
 *.log
 
