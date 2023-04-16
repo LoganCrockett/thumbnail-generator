@@ -1,5 +1,7 @@
 package crockett.logan.thumbnail_generator.app;
 
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -58,5 +60,22 @@ public class Thumbnail {
 				outputStream.close();
 			}
 		}
+	}
+	
+	/**
+	 * Scales an image to the desired width and height
+	 * @param width new width of the image (not < 1)
+	 * @param height new height of the image (not < 1)
+	 * @throws IllegalArgumentException if the width or height is < 1
+	 */
+	public void scale(int width, int height) throws IllegalArgumentException {
+		Image scaledImage = this.thumbnail.getScaledInstance(width, height, BufferedImage.SCALE_SMOOTH);
+		BufferedImage scaledBufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		
+		Graphics2D g = (Graphics2D)scaledBufferedImage.getGraphics();
+		g.drawImage(scaledImage, 0, 0, width, height, null);
+		
+		this.thumbnail = scaledBufferedImage;
+		g.dispose();
 	}
 }

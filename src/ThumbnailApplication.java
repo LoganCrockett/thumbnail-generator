@@ -9,7 +9,9 @@ public class ThumbnailApplication {
 		
 		Thumbnail t;
 		try {
-			t = new Thumbnail(filePath + "inputPicture.jpg");
+			t = new Thumbnail(filePath + "orion.jpg");
+			
+			t.scale(200, 300);
 			
 			t.writeThumbnailToFileSystem(filePath + "thumbnail.png", "png");
 		} catch (IllegalArgumentException e) {
