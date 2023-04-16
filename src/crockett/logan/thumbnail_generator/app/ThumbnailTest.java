@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -16,6 +18,25 @@ public class ThumbnailTest {
 	
 	private final String filePath = "resources\\images\\";
 	private final String fileName = "orion.jpg";
+	private final String outputFilePath = this.filePath + "output\\";
+	
+	private Thumbnail thumbnail;
+	
+	@BeforeEach
+	void beforeEach() {
+		try {
+			this.thumbnail = new Thumbnail(this.filePath + this.fileName);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+	
+	@AfterEach
+	void afterEach() {
+		this.thumbnail = null;
+	}
 
 	// Constructor Tests
 	@Test
@@ -49,26 +70,23 @@ public class ThumbnailTest {
 	@Test
 	void writeThumbnailToFileSystemThrowsNullPointerExceptionForNullFilePath() {
 		assertThrows(NullPointerException.class, () -> {
-			Thumbnail t = new Thumbnail(this.filePath + this.fileName);
-			t.writeThumbnailToFileSystem(null, "png");
+			this.thumbnail.writeThumbnailToFileSystem(null, "png");
 		});
 	}
 	
 	@Test
 	void writeThumbnailToFileSystemThrowsIllegalArgumentExceptionForNullFileFormat() {
 		assertThrows(IllegalArgumentException.class, () -> {
-			Thumbnail t = new Thumbnail(this.filePath + this.fileName);
-			t.writeThumbnailToFileSystem(this.filePath + "testing.png", null);
+			this.thumbnail.writeThumbnailToFileSystem(this.outputFilePath + "testing.png", null);
 		});
 	}
 
 	@Test
 	void writeThumbnailToFileSystemSuccessfullyWrites() {
-		String testFilePath = this.filePath + "test.png";
-		Thumbnail t;
+		String testFilePath = this.outputFilePath + "test.png";
+
 		try {
-			t = new Thumbnail(this.filePath + this.fileName);
-			t.writeThumbnailToFileSystem(testFilePath, "png");
+			this.thumbnail.writeThumbnailToFileSystem(testFilePath, "png");
 			
 			File verify = new File(testFilePath);
 			
@@ -85,7 +103,7 @@ public class ThumbnailTest {
 	@MethodSource("provideInvalidDataPointsForScale")
 	void scaleThrowsIllegalArgumentExceptionForInavlidWidthsAndHeights(Point p) {
 		assertThrows(IllegalArgumentException.class, () -> {
-			new Thumbnail(this.filePath + this.fileName).scale((int)p.getX(), (int)p.getY());
+			this.thumbnail.scale((int)p.getX(), (int)p.getY());
 		});
 	}
 	
@@ -101,7 +119,94 @@ public class ThumbnailTest {
 	@Test
 	void scaleWorksWithNoExceptionsThrown() {
 		try {
-			new Thumbnail(this.filePath + this.fileName).scale(300, 200);
+			this.thumbnail.scale(300, 200);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+	
+	// crop Tests
+	@Test
+	void cropThrowsIllegalArgumentExceptionForNegativeStartingX() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.thumbnail.crop(-1, 0, 200, 300);
+		});
+	}
+	
+	@Test
+	void cropThrowsIllegalArgumentExceptionForNegativeStartingY() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.thumbnail.crop(0, -1, 200, 300);
+		});
+	}
+	
+	@Test
+	void cropThrowsIllegalArgumentExceptionForNegativeWidth() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.thumbnail.crop(0, 0, -200, 300);
+		});
+	}
+	
+	@Test
+	void cropThrowsIllegalArgumentExceptionForNegativeHeight() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.thumbnail.crop(0, 0, 200, -300);
+		});
+	}
+	
+	@Test
+	void cropThrowsIllegalArgumentExceptionForTooBigStartingX() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.thumbnail.crop(this.thumbnail.getWidth() + 1, 0, 200, 300);
+		});
+	}
+	
+	@Test
+	void cropThrowsIllegalArgumentExceptionForTooBigStartingY() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.thumbnail.crop(0, this.thumbnail.getHeight() + 1, 200, 300);
+		});
+	}
+	
+	@Test
+	void cropThrowsIllegalArgumentExceptionForTooBigWidth() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.thumbnail.crop(0, 0, this.thumbnail.getWidth() + 1, 300);
+		});
+	}
+	
+	@Test
+	void cropThrowsIllegalArgumentExceptionForTooBigHeight() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.thumbnail.crop(0, 0, 200, this.thumbnail.getHeight() + 1);
+		});
+	}
+	
+	@Test
+	void cropThrowsIllegalArgumentExceptionForExceedingOriginalImageSizeXDirection() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.thumbnail.crop(1, 0, this.thumbnail.getWidth(), 300);
+		});
+	}
+	
+	@Test
+	void cropThrowsIllegalArgumentExceptionForExceedingOriginalImageSizeYDirection() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.thumbnail.crop(0, 1, 200, this.thumbnail.getHeight());
+		});
+	}
+	
+	@Test
+	void cropWorksWithNoExceptionsThrown() {
+		try {
+			int newWidth = this.thumbnail.getWidth() - 100;
+			int newHeight = this.thumbnail.getHeight() - 100;
+			this.thumbnail.crop(0, 0, newWidth, newHeight);
+			
+			assertEquals(newWidth, this.thumbnail.getWidth());
+			assertEquals(newHeight, this.thumbnail.getHeight());
 		}
 		catch (Exception e) {
 			e.printStackTrace();

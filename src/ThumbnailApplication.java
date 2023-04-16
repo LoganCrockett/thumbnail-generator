@@ -11,9 +11,11 @@ public class ThumbnailApplication {
 		try {
 			t = new Thumbnail(filePath + "orion.jpg");
 			
-			t.scale(200, 300);
+			// t.scale(200, 300);
 			
-			t.writeThumbnailToFileSystem(filePath + "thumbnail.png", "png");
+			t.crop(50, 50, 300, 400);
+			
+			t.writeThumbnailToFileSystem(filePath + "output\\thumbnail.png", "png");
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

@@ -41,6 +41,22 @@ public class Thumbnail {
 	}
 	
 	/**
+	 * Gets the width of the current thumbnail
+	 * @return width of the thumbnail
+	 */
+	public int getWidth() {
+		return this.thumbnail.getWidth();
+	}
+	
+	/**
+	 * Gets the height of the current thumbnail
+	 * @return height of the thumbnail
+	 */
+	public int getHeight() {
+		return this.thumbnail.getHeight();
+	}
+	
+	/**
 	 * Writes a Thumbnail to the File System
 	 * @param filePath file path to write to
 	 * @param outputFormat file format
@@ -48,6 +64,10 @@ public class Thumbnail {
 	 * @throws NullPointerException if the filePath is null
 	 */
 	public void writeThumbnailToFileSystem(String filePath, String outputFormat) throws IOException, NullPointerException {
+		if (outputFormat == null) {
+			throw new IllegalArgumentException("Output format cannot be null");
+		}
+		
 		File outputFile = new File(filePath);
 		
 		FileImageOutputStream outputStream = null;
@@ -77,5 +97,41 @@ public class Thumbnail {
 		
 		this.thumbnail = scaledBufferedImage;
 		g.dispose();
+	}
+	
+	/**
+	 * Crops the current thumbnail down to the region specified
+	 * @param startingX starting x position
+	 * @param startingY starting y position
+	 * @param width width of the cropped image
+	 * @param height height of the cropped image
+	 * @throws IllegalArgumentException if any parameters is less than zero, of if the parameters exceed the current image dimensions
+	 */
+	public void crop(int startingX, int startingY, int width, int height) throws IllegalArgumentException {
+		if (startingX < this.thumbnail.getMinX() || startingX > this.thumbnail.getWidth()) {
+			throw new IllegalArgumentException("Starting X must be inside current image bounds");
+		}
+		
+		if (startingY < this.thumbnail.getMinY() || startingY > this.thumbnail.getHeight()) {
+			throw new IllegalArgumentException("Starting Y must be inside current image bounds");
+		}
+		
+		if (width < 0 || width > this.thumbnail.getWidth()) {
+			throw new IllegalArgumentException("Width must be non-zero and at least equal to the current image width");
+		}
+		
+		if (height < 0 || height > this.thumbnail.getHeight()) {
+			throw new IllegalArgumentException("Height must be non-zero and at least equal to the current image height");
+		}
+		
+		if (startingX + width > this.thumbnail.getWidth()) {
+			throw new IllegalArgumentException("Current starting position and width exceeds current bounds");
+		}
+		
+		if (startingY + height > this.thumbnail.getHeight()) {
+			throw new IllegalArgumentException("Current starting position and height exceeds current bounds");
+		}
+		
+		this.thumbnail = this.thumbnail.getSubimage(startingX, startingY, width, height);
 	}
 }
