@@ -54,6 +54,13 @@ public class ThumbnailTest {
 	}
 	
 	@Test
+	void constructorThrowsIllegalArgumentExceptionForInvalidFileFormat() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			new Thumbnail(this.filePath + "example.fakeFormat");
+		});
+	}
+		
+	@Test
 	void ableToConstructInstance() {
 		Thumbnail t;
 		try {
@@ -78,6 +85,13 @@ public class ThumbnailTest {
 	void writeThumbnailToFileSystemThrowsIllegalArgumentExceptionForNullFileFormat() {
 		assertThrows(IllegalArgumentException.class, () -> {
 			this.thumbnail.writeThumbnailToFileSystem(this.outputFilePath + "testing.png", null);
+		});
+	}
+	
+	@Test
+	void writeThumbnailToFileSystemThrowsIllegalArgumentExceptionForUnsupportedFileFormat() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.thumbnail.writeThumbnailToFileSystem(this.outputFilePath + "testing.png", "fakeFormat");
 		});
 	}
 

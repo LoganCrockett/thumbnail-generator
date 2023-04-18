@@ -23,6 +23,12 @@ public class Thumbnail {
 	public Thumbnail(String filePath) throws IllegalArgumentException, IOException, NullPointerException {
 		File imageFile = new File(filePath);
 		
+		String fileExtension = filePath.substring(filePath.lastIndexOf(".")+1);
+		
+		if (!this.checkIfFormatIsSupported(fileExtension)) {
+			throw new IllegalArgumentException("Invalid File Type " + fileExtension + " detected");
+		}
+		
 		if (imageFile.isDirectory()) {
 			throw new IllegalArgumentException("File " + filePath + " does not exist.");
 		}
@@ -37,7 +43,6 @@ public class Thumbnail {
 				inputImageStream.close();
 			}
 		}
-		
 	}
 	
 	/**
@@ -57,6 +62,27 @@ public class Thumbnail {
 	}
 	
 	/**
+	 * Returns true/false if a provided file format is supported
+	 * @param fileFormat format to check
+	 * @return true/false if the format is supported
+	 */
+	private boolean checkIfFormatIsSupported(String fileFormat) {
+		if (fileFormat == null || fileFormat.isEmpty()) {
+			return false;
+		}
+		
+		String[] supportedFormats = {"png", "jpg", "jpeg"};
+		
+		boolean isSupported = false;
+		
+		for (int i = 0; i < supportedFormats.length && !isSupported; i++) {
+			isSupported = supportedFormats[i].equalsIgnoreCase(fileFormat);
+		}
+		
+		return isSupported;
+	}
+	
+	/**
 	 * Writes a Thumbnail to the File System
 	 * @param filePath file path to write to
 	 * @param outputFormat file format
@@ -66,6 +92,10 @@ public class Thumbnail {
 	public void writeThumbnailToFileSystem(String filePath, String outputFormat) throws IOException, NullPointerException {
 		if (outputFormat == null) {
 			throw new IllegalArgumentException("Output format cannot be null");
+		}
+		
+		if (!this.checkIfFormatIsSupported(outputFormat)) {
+			throw new IllegalArgumentException("File Format " + outputFormat + " not supported");
 		}
 		
 		File outputFile = new File(filePath);
@@ -134,4 +164,5 @@ public class Thumbnail {
 		
 		this.thumbnail = this.thumbnail.getSubimage(startingX, startingY, width, height);
 	}
+
 }
